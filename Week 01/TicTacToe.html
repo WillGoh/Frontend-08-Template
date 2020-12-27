@@ -1,17 +1,153 @@
 <style>
-  .board {
-    background-color: goldenrod;
-    display: flex;
+  .cell {
+    background-color: #ffc561;
     width: 100px;
     height: 100px;
-  }
-  .cell {
-    border: 1px solid rebeccapurple;
+    display: inline-block;
+    border: 1px solid white;
+    vertical-align: middle;
+    text-align: center;
+    line-height: 100px;
+    font-size: 50px;
+    cursor: pointer;
+    user-select: none;
   }
 </style>
 
-<div class="board"></div>
+<div id="board"></div>
 
 <script>
-  console.log('Hello world');
-</script> 
+  const rows = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+  let color = 2;
+
+  function renderBoard() {
+    const board = document.getElementById("board");
+    board.innerText = "";
+
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        const cellEl = document.createElement("div");
+        cellEl.classList.add("cell");
+        const cellValue = rows[i * 3 + j];
+        cellEl.innerText =
+          cellValue === 2 ? "❌" : cellValue === 1 ? "⭕️" : "";
+        cellEl.addEventListener("click", () => userMove(i, j));
+        board.appendChild(cellEl);
+      }
+      board.appendChild(document.createElement("br"));
+    }
+  }
+
+  function userMove(x, y) {
+    rows[x * 3 + y] = color;
+    if (check(rows, color)) {
+      alert(color === 2 ? "❌ wins" : "⭕️ wins");
+    }
+    color = 3 - color;
+    renderBoard();
+    computerMove();
+  }
+
+  function computerMove() {
+    const choice = bestChoice(rows, color);
+    if (choice.point) {
+      rows[choice.point[0] * 3 + choice.point[1]] = color;
+    }
+    if (check(rows, color)) {
+      alert(color === 2 ? "❌ wins" : "⭕️ wins");
+    }
+    color = 3 - color;
+    renderBoard();
+  }
+
+  function check(rows, color) {
+    for (let i = 0; i < 3; i++) {
+      let win = true;
+      for (let j = 0; j < 3; j++) {
+        if (rows[i * 3 + j] !== color) {
+          win = false;
+        }
+      }
+      if (win) return true;
+    }
+
+    for (let i = 0; i < 3; i++) {
+      let win = true;
+      for (let j = 0; j < 3; j++) {
+        if (rows[j * 3 + i] !== color) {
+          win = false;
+        }
+      }
+      if (win) return true;
+    }
+
+    {
+      let win = true;
+      for (let i = 0; i < 3; i++) {
+        if (rows[i * 3 + i] !== color) {
+          win = false;
+        }
+      }
+      if (win) return true;
+    }
+    {
+      let win = true;
+      for (let i = 0; i < 3; i++) {
+        if (rows[i * 3 + 2 - i] !== color) {
+          win = false;
+        }
+      }
+      if (win) return true;
+    }
+  }
+
+  function clone(rows) {
+    return Object.create(rows);
+  }
+
+  function willWin(rows, color) {
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        if (rows[i * 3 + j]) continue;
+        let tmp = clone(rows);
+        tmp[i * 3 + j] = color;
+        if (check(tmp, color)) {
+          return [i, j];
+        }
+      }
+    }
+    return null;
+  }
+
+  function bestChoice(rows, color) {
+    let point = willWin(rows, color);
+    if (point) {
+      return { point, result: 1 };
+    }
+
+    let result = -1;
+    outer: for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        if (rows[i * 3 + j]) continue;
+        let tmp = clone(rows);
+        tmp[i * 3 + j] = color;
+        let r = bestChoice(tmp, 3 - color);
+
+        if (-r.result >= result) {
+          point = [i, j];
+          result = -r.result;
+        }
+
+        if (result === 1) break outer;
+      }
+    }
+
+    return {
+      point,
+      result: point ? result : 0,
+    };
+  }
+
+  renderBoard();
+</script>
