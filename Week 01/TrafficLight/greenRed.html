@@ -1,17 +1,62 @@
 <style>
-  .board {
-    background-color: goldenrod;
-    display: flex;
+  div {
+    background-color: grey;
+    display: inline-block;
+    margin: 30px;
     width: 100px;
     height: 100px;
+    border-radius: 50px;
   }
-  .cell {
-    border: 1px solid rebeccapurple;
+  .green.light {
+    background-color: green;
+  }
+  .yellow.light {
+    background-color: yellow;
+  }
+  .red.light {
+    background-color: red;
   }
 </style>
 
-<div class="board"></div>
+<div class="green"></div>
+<div class="yellow"></div>
+<div class="red"></div>
 
 <script>
-  console.log('Hello world');
-</script> 
+  function green() {
+    const lights = document.getElementsByTagName("div");
+    for (let i = 0; i < 3; i++) {
+      lights[i].classList.remove("light");
+    }
+    document.getElementsByClassName("green")[0].classList.add("light");
+  }
+
+  function red() {
+    const lights = document.getElementsByTagName("div");
+    for (let i = 0; i < 3; i++) {
+      lights[i].classList.remove("light");
+    }
+    document.getElementsByClassName("red")[0].classList.add("light");
+  }
+
+  function yellow() {
+    const lights = document.getElementsByTagName("div");
+    for (let i = 0; i < 3; i++) {
+      lights[i].classList.remove("light");
+    }
+    document.getElementsByClassName("yellow")[0].classList.add("light");
+  }
+
+  function go() {
+    green();
+    setTimeout(() => {
+      yellow();
+      setTimeout(() => {
+        red();
+        setTimeout(() => {
+          go();
+        }, 500);
+      }, 200);
+    }, 1000);
+  }
+</script>
