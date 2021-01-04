@@ -68,6 +68,53 @@
 
       document.addEventListener("mouseup", () => (mousedown = false));
       document.addEventListener("contextmenu", (e) => e.preventDefault());
+
+      function sleep(t) {
+        return new Promise((resolve, reject) => {
+          setTimeout(resolve, t);
+        });
+      }
+
+      async function findPath(map, start, end) {
+        let table = Object.create(map);
+        let queue = [start];
+
+        async function insert(x, y, pre) {
+          if (x < 0 || x >= 100 || y < 0 || y >= 100) return;
+          if (table[x * 100 + y]) return;
+
+          container.children[x * 100 + y].style.backgroundColor = "lightgreen";
+          table[x * 100 + y] = pre;
+          queue.push([x, y]);
+        }
+
+        while (queue.length) {
+          let [x, y] = queue.shift();
+
+          if (x === end[0] && y === end[1]) {
+            let path = [];
+
+            while (x !== start[0] || y !== start[1]) {
+              path.push(map[x * 100 + y]);
+              [x, y] = table[x * 100 + y];
+              await sleep(30);
+              container.children[x * 100 + y].style.backgroundColor = "purple";
+            }
+          }
+
+          await insert(x - 1, y, [x, y]);
+          await insert(x + 1, y, [x, y]);
+          await insert(x, y - 1, [x, y]);
+          await insert(x, y + 1, [x, y]);
+
+          await insert(x - 1, y - 1, [x, y]);
+          await insert(x + 1, y - 1, [x, y]);
+          await insert(x - 1, y + 1, [x, y]);
+          await insert(x + 1, y + 1, [x, y]);
+        }
+
+        return null;
+      }
     </script>
   </body>
 </html>
